@@ -56,3 +56,15 @@ There are various places where Zephyr doesn't have modules that control the nrf 
 
 You will likely find that Zephyr doesn't let you do what you need to do with the hardware in some circumstances. For me, this includes PWM & ADC. In that case, you will need to deliberately exclude the relevant Zephyr module from the build and in the nrfx and/or nrf module instead. 
 
+## Troubleshooting
+
+### Segger Embedded Studio RTT Unreliable / Flakey
+
+I lost a day to this one. The RTT just wouldn't connect reliably. Turns out there's a define called _SEGGER_RTT (_) in zephyr/zephyr.map and this is not passed reliably to the J-Link Viewer which presumably sits behind the emStudio Debug Terminal.
+
+It turned out that if zephyr/merged.hex was the active project, the debug terminal didn't work, but if the zephyr/zephyr.elf project was active, the debug terminal worked. My assumption is that the RTT define doesn't get outside the main solution so when the debug terminal starts from the zepyyr.hex project, the define isn't defined - so the viewer struggles to find the control block.
+
+It would be nice to have some increased visibility in the Debug Terminal to see how this is initialised and determine if the RTT Control Block address is properly set when it's launched.
+
+
+
