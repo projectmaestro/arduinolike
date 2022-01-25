@@ -72,5 +72,3 @@ settings_storage:
   address: 0xf8000
   size: 0x8000
 
-
-
