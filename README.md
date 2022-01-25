@@ -58,13 +58,19 @@ You will likely find that Zephyr doesn't let you do what you need to do with the
 
 ## Troubleshooting
 
-### Segger Embedded Studio RTT Unreliable / Flakey
+### Segger Embedded Studio RTT Unreliable / Flakey when mcuboot enabled
 
-I lost a day to this one. The RTT just wouldn't connect reliably. Turns out there's a define called _SEGGER_RTT (_) in zephyr/zephyr.map and this is not passed reliably to the J-Link Viewer which presumably sits behind the emStudio Debug Terminal.
+I lost (a day) two days to this one. The RTT just wouldn't connect reliably. Turns out there's a define called _SEGGER_RTT (_) in zephyr/zephyr.map and this is not passed reliably to the J-Link Viewer which presumably sits behind the emStudio Debug Terminal.
 
-It turned out that if zephyr/merged.hex was the active project, the debug terminal didn't work, but if the zephyr/zephyr.elf project was active, the debug terminal worked. My assumption is that the RTT define doesn't get outside the main solution so when the debug terminal starts from the zepyyr.hex project, the define isn't defined - so the viewer struggles to find the control block.
+I went on a wild goose chase via changing zephyr/merged.hex as the active project, the debug terminal didn't work, but if the zephyr/zephyr.elf project was active, the debug terminal worked. My assumption is that the RTT define doesn't get outside the main solution so when the debug terminal starts from the zepyyr.hex project, the define isn't defined - so the viewer struggles to find the control block.
 
-It would be nice to have some increased visibility in the Debug Terminal to see how this is initialised and determine if the RTT Control Block address is properly set when it's launched.
+It eventually turned out that the problem at the storage partition being in different places between the DTS system & overlays, and the Partition Manager that mcuboot uses put it in a different place. Why there are two different ways to define the partition in the same build system, I have no idea.
+
+The eventual solution was to create a file called pm_static.yml in the project root and set the storage partition to the same location as in the zephyr.dts.
+
+settings_storage:
+  address: 0xf8000
+  size: 0x8000
 
 
 
